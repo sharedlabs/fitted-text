@@ -1,0 +1,107 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<!--
+`fitted-text`
+Inner text will fit the whole width of the element
+
+@demo demo/index.html
+@element fittex-text
+-->
+
+<dom-module id="fitted-text">
+  <template>
+    <style>
+      :host {
+        display: block;
+        contain: paint content layout;
+        white-space: nowrap;
+      }
+    </style>
+    <slot></slot>
+  </template>
+
+  <script>
+
+  class FittedText extends Polymer.Element {
+
+    static get is() {return 'fitted-text';}
+
+    constructor() {
+      super();
+      this._canvas = document.createElement('canvas');
+      this._ctx = this._canvas.getContext('2d');
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+      requestAnimationFrame(_ => this.scale());
+    }
+
+    /**
+     * Updates the text and scales it
+     * @param  {String} text
+     */
+    updateText(text) {
+      requestAnimationFrame(_ => this.scale(text));
+    }
+
+    /**
+     * Recalculate text font size
+     * @param  {String} text - Optionaly update to this text
+     */
+    scale(text = this.innerText) {
+      const containerWidth = this.offsetWidth;
+      var bestFound = false;
+      var minFontSize = 1;
+      var maxFontSize = 1000;
+      var currentSize = (minFontSize + maxFontSize) / 2;
+      var {font, fontSize} = this._getFontStyles(this);
+
+      const fontParser = document.createElement('div');
+      fontParser.style.cssText = this.style.cssText;
+      fontParser.style.font = font;
+      fontParser.style.fontSize = `${currentSize}px`;
+      let textWidth = this._getTextWidth(text, fontParser.style.font);
+
+      while (!bestFound) {
+        if (textWidth < containerWidth) {
+          minFontSize = currentSize;
+        } else {
+          maxFontSize = currentSize;
+        }
+
+        const newSize = (minFontSize + maxFontSize) / 2;
+
+        if (Math.round(newSize * 1000) / 1000 === Math.round(currentSize * 1000) / 1000) {
+          bestFound = true;
+        } else {
+          currentSize = newSize;
+          fontParser.style.fontSize = `${currentSize}px`;
+          textWidth = this._getTextWidth(text, fontParser.style.font)
+        }
+      }
+
+      this.innerText = text;
+      this.style.fontSize = minFontSize + 'px';
+    }
+
+    _getTextWidth(text, font) {
+      this._ctx.font = font;
+      return this._ctx.measureText(text).width;
+    }
+
+    _getFontStyles(el) {
+      try {
+        const {font, fontSize} = getComputedStyle(el);
+        return {font, fontSize};
+      } catch(err) {
+        return '';
+      }
+    }
+
+  }
+
+  customElements.define(FittedText.is, FittedText);
+
+  </script>
+</dom-module>

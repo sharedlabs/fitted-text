@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>fitted-text demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../fitted-text.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+
+  <body>
+        <fitted-text>My text</fitted-text>
+      <fitted-text style="width: 400px; background: #ccc; display: block; font-family: sans-serif;">Fitted text</fitted-text>
+      <fitted-text id="fit" style="width: 400px; background: #eee; text-align: center; border: solid 1px #999; display: block; font-family: Arial; margin-top: 20px">imperdiet, sapien sed varius tincidunt,</fitted-text>
+
+      <script>
+        const words = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin commodo volutpat leo nec pretium. Sed interdum dolor quis metus consequat rutrum. Pellentesque vitae pharetra eros. Integer a ex blandit, commodo purus in, pulvinar risus. Phasellus accumsan turpis id nibh ornare, ullamcorper laoreet dolor imperdiet. Maecenas ac tristique leo, in tincidunt urna. Vivamus nec metus in urna viverra semper sed sed elit. Curabitur et congue turpis. Ut suscipit dapibus sem, at egestas mauris commodo dignissim. Phasellus imperdiet, sapien sed varius tincidunt, ligula purus ultricies magna, at accumsan elit dui et neque.".split(" ");
+
+        setInterval(_ => {
+          const el = document.querySelector('#fit');
+          const random = Math.floor(Math.random() * (words.length - 5)) + 0;
+          const numberOfWords = Math.floor(Math.random() * 8) + 2;
+
+          el.updateText(words.slice(random, random + numberOfWords).join(' '));
+        }, 800);
+      </script>
+  </body>
+</html>
