@@ -12,9 +12,11 @@ Inner text will fit the whole width of the element
   <template>
     <style>
       :host {
-        display: block;
+        display: flex;
+        align-items: center;
         contain: paint content layout;
         white-space: nowrap;
+        justify-content: center;
       }
     </style>
     <slot></slot>
@@ -51,6 +53,7 @@ Inner text will fit the whole width of the element
      */
     scale(text = this.innerText) {
       const containerWidth = this.offsetWidth;
+      const containerHeight = this.offsetHeight;
       var bestFound = false;
       var minFontSize = 1;
       var maxFontSize = 1000;
@@ -61,10 +64,10 @@ Inner text will fit the whole width of the element
       fontParser.style.cssText = this.style.cssText;
       fontParser.style.font = font;
       fontParser.style.fontSize = `${currentSize}px`;
-      let textWidth = this._getTextWidth(text, fontParser.style.font);
+      let {textWidth, textHeight} = this._getTextSize(text, fontParser.style.font);
 
       while (!bestFound) {
-        if (textWidth < containerWidth) {
+        if (textWidth < containerWidth && textHeight < containerHeight) {
           minFontSize = currentSize;
         } else {
           maxFontSize = currentSize;
@@ -77,7 +80,9 @@ Inner text will fit the whole width of the element
         } else {
           currentSize = newSize;
           fontParser.style.fontSize = `${currentSize}px`;
-          textWidth = this._getTextWidth(text, fontParser.style.font)
+          const size = this._getTextSize(text, fontParser.style.font);
+          textWidth = size.textWidth;
+          textHeight = size.textHeight;
         }
       }
 
@@ -85,9 +90,14 @@ Inner text will fit the whole width of the element
       this.style.fontSize = minFontSize + 'px';
     }
 
-    _getTextWidth(text, font) {
+    _getTextSize(text, font) {
       this._ctx.font = font;
-      return this._ctx.measureText(text).width;
+      const textWidth = this._ctx.measureText(text).width;
+      this._ctx.save();
+      this._ctx.rotate(-Math.PI / 2);
+      const textHeight = this._ctx.measureText("M").width;
+      this._ctx.restore();
+      return {textWidth, textHeight};
     }
 
     _getFontStyles(el) {
